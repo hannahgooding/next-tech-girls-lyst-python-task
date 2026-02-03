@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Fashion Companion</title>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <h1>Fashion Companion</h1>
+
+        <div class="grid" id="grid"></div>
+
+        <script>
+            fetch("data.json")
+                .then(response => response.json())
+                .then(items => {
+                    const grid = document.getElementById("grid");
+
+                    items.forEach(item => {
+                        grid.innerHTML += `
+                            <div class="card">
+                                <img src="${item.image}" alt="${item.title}">
+                                <p>${item.title}</p>
+                            </div>
+                        `;
+                    });
+                });
+        </script>
+    </body>
+</html>
