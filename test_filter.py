@@ -22,7 +22,7 @@ from filter import (
 
 @pytest.fixture
 def all_products():
-    """Fixture to load all products from data.json"""
+    """Fixture to load all products from data.jsonl"""
     return load_products()
 
 

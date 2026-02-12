@@ -112,8 +112,8 @@
                     })
                     .catch(error => {
                         console.error('Error loading page:', error);
-                        // Fallback: load all products from data.json without pagination
-                        fetch('data.json')
+                        // Fallback: load all products from data.jsonl without pagination
+                        fetch('data.jsonl')
                             .then(response => response.text())
                             .then(text => {
                                 allItems = text.trim().split('\n').map(line => JSON.parse(line));

@@ -7,14 +7,14 @@ import pagination as pagination_module
 
 class Handler(SimpleHTTPRequestHandler):
     def do_GET(self):
-        if self.path == "/data.json":
+        if self.path == "/data.jsonl":
             # Check if there are active filters
-            if os.path.exists("current_filters.json"):
-                with open("current_filters.json", "r") as f:
+            if os.path.exists("current_filters.jsonl"):
+                with open("current_filters.jsonl", "r") as f:
                     filters = json.load(f)
 
                 # Load all products
-                all_products = filter_module.load_products("data.json")
+                all_products = filter_module.load_products("data.jsonl")
 
                 # Apply filters using the filter.py functions
                 color = filters.get("color") or None
@@ -59,7 +59,7 @@ class Handler(SimpleHTTPRequestHandler):
                 data = "\n".join([json.dumps(product) for product in filtered_products])
             else:
                 # No filters, return all data
-                with open("data.json", "r") as f:
+                with open("data.jsonl", "r") as f:
                     data = f.read()
 
             self.send_response(200)
@@ -78,13 +78,13 @@ class Handler(SimpleHTTPRequestHandler):
             page_number = int(query_params.get("page", [1])[0])
             items_per_page = int(query_params.get("items_per_page", [50])[0])
 
-            # Load and filter products (same logic as /data.json)
+            # Load and filter products (same logic as /data.jsonl)
             if os.path.exists("current_filters.json"):
                 with open("current_filters.json", "r") as f:
                     filters = json.load(f)
 
                 # Load all products
-                all_products = filter_module.load_products("data.json")
+                all_products = filter_module.load_products("data.jsonl")
 
                 # Apply filters
                 color = filters.get("color") or None
@@ -126,7 +126,7 @@ class Handler(SimpleHTTPRequestHandler):
                     )
             else:
                 # No filters, load all products
-                filtered_products = filter_module.load_products("data.json")
+                filtered_products = filter_module.load_products("data.jsonl")
 
             # Apply pagination using pagination.py functions
             page_data = pagination_module.get_page_data(
