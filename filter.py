@@ -8,12 +8,12 @@ Students will implement the filtering logic for each function below.
 import json
 
 
-def load_products(filename="data.json"):
+def load_products(filename="data.jsonl"):
     """
     Load products from the JSONL data file.
 
     Args:
-        filename (str): Path to the data file (default: "data.json")
+        filename (str): Path to the data file (default: "data.jsonl")
 
     Returns:
         list: List of product dictionaries
@@ -187,7 +187,7 @@ def apply_filters(products, color=None, price_range=None, on_sale=None, brand=No
     return filtered_products
 
 
-def save_filtered_results(products, output_filename="filtered_data.json"):
+def save_filtered_results(products, output_filename="filtered_data.jsonl"):
     """
     Save filtered products to a new JSONL file.
 
