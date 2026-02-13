@@ -27,10 +27,8 @@ def get_total_pages(products, items_per_page=50):
     Hint: Use the len() function to get the number of products.
     Hint: You may need to use math.ceil() to round up to the nearest whole number.
     """
-    # STARTER CODE - Replace this with your own implementation
-    if not products:
-        return 1
-    return math.ceil(len(products) / items_per_page)
+    # YOUR CODE HERE
+    pass
 
 
 def get_page_data(products, page_number, items_per_page=50):
@@ -54,10 +52,8 @@ def get_page_data(products, page_number, items_per_page=50):
     Hint: Use list slicing to get a subset of the products list.
     Hint: Calculate the start_index and end_index based on page_number and items_per_page.
     """
-    # STARTER CODE - Replace this with your own implementation
-    start_index = (page_number - 1) * items_per_page
-    end_index = start_index + items_per_page
-    return products[start_index:end_index]
+    # YOUR CODE HERE
+    pass
 
 
 def create_pagination_info(products, page_number, items_per_page=50):
@@ -98,19 +94,5 @@ def create_pagination_info(products, page_number, items_per_page=50):
     Hint: has_previous is True if current_page > 1
     Hint: has_next is True if current_page < total_pages
     """
-    # STARTER CODE - Replace this with your own implementation
-    total_pages = get_total_pages(products, items_per_page)
-    total_items = len(products)
-    start_index = (page_number - 1) * items_per_page
-    end_index = min(start_index + items_per_page - 1, total_items - 1)
-
-    return {
-        "current_page": page_number,
-        "total_pages": total_pages,
-        "items_per_page": items_per_page,
-        "total_items": total_items,
-        "has_previous": page_number > 1,
-        "has_next": page_number < total_pages,
-        "start_index": start_index,
-        "end_index": end_index,
-    }
+    # YOUR CODE HERE
+    pass
