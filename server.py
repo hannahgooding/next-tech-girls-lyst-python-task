@@ -1,16 +1,43 @@
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 import json
 import os
+import sys
+import time
+import importlib
+from threading import Thread
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 import filter as filter_module
 import pagination as pagination_module
+
+
+# Auto-reload handler
+class ReloadHandler(FileSystemEventHandler):
+    def __init__(self, modules_to_reload):
+        self.modules_to_reload = modules_to_reload
+        self.last_reload = time.time()
+
+    def on_modified(self, event):
+        if event.src_path.endswith(".py") and not event.is_directory:
+            # Debounce: only reload if at least 1 second has passed
+            if time.time() - self.last_reload > 1:
+                print(f"\nDetected change in {event.src_path}")
+                for module in self.modules_to_reload:
+                    try:
+                        importlib.reload(module)
+                        print(f"Reloaded {module.__name__}")
+                    except Exception as e:
+                        print(f"Error reloading {module.__name__}: {e}")
+                print("✨ Ready for requests!\n")
+                self.last_reload = time.time()
 
 
 class Handler(SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path == "/data.jsonl":
             # Check if there are active filters
-            if os.path.exists("current_filters.jsonl"):
-                with open("current_filters.jsonl", "r") as f:
+            if os.path.exists("current_filters.json"):
+                with open("current_filters.json", "r") as f:
                     filters = json.load(f)
 
                 # Load all products
@@ -175,7 +202,23 @@ class Handler(SimpleHTTPRequestHandler):
             self.end_headers()
 
 
-server_address = ("", 8000)
+server_address = ("", 3000)
 httpd = HTTPServer(server_address, Handler)
-print("Serving on http://localhost:8000")
-httpd.serve_forever()
+
+# Set up file watcher for auto-reload
+observer = Observer()
+reload_handler = ReloadHandler([filter_module, pagination_module])
+observer.schedule(reload_handler, path=".", recursive=False)
+observer.start()
+
+print("🚀 Server starting on http://localhost:3000")
+print("👀 Watching for file changes (auto-reload enabled)...")
+print("Press Ctrl+C to stop\n")
+
+try:
+    httpd.serve_forever()
+except KeyboardInterrupt:
+    print("\n🛑 Shutting down server...")
+    observer.stop()
+    observer.join()
+    print("✅ Server stopped")

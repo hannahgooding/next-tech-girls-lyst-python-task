@@ -96,8 +96,20 @@
             let currentPage = 1;
             let paginationInfo = {};
 
-            // Load initial page of products from Python backend
-            loadPage(currentPage);
+            // Clear any persisted filters on page load
+            fetch('/api/clear-filters', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(() => {
+                // Load initial page of products from Python backend
+                loadPage(currentPage);
+            }).catch(error => {
+                console.error('Error clearing filters on load:', error);
+                // Load page anyway even if clearing filters fails
+                loadPage(currentPage);
+            });
 
             function loadPage(pageNumber) {
                 // Fetch paginated data from the Python server

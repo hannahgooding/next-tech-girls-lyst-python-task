@@ -110,7 +110,7 @@ class TestFilterByPriceRange:
     def test_filter_by_price_range_mid_range(self, sample_products):
         """Test filtering by mid-range prices"""
         mid_range = filter_by_price_range(sample_products, 100, 500)
-        assert len(mid_range) == 2  # Products with prices 150 and 250 (discount)
+        assert len(mid_range) == 3  # Products with prices 150, 250, and 400 (discount)
         for product in mid_range:
             price = (
                 product["discount_price"]
