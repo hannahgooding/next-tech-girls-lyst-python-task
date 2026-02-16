@@ -150,6 +150,22 @@ python filter.py
 
 Uncomment the example code at the bottom of `filter.py` to test your functions directly.
 
+## Extension: Database Migration & Benchmarking
+
+For this extension, you will need to access the jupyter notebook.
+
+There are two ways of doing this - you can do this in vscode directly, by clicking on the file and trying to run it. You can also run the jupyter notebook like this:
+
+```bash
+# Activate your virtual environment - make sure you've followed the instructions above to create your virtual environment!
+# Note: this assumes you are on a mac machine
+source venv/bin/activate
+pip install -r requirements.txt
+jupyter lab
+```
+
+This will open up a browser window at http://localhost:8888/lab, which you can use to navigate through the repository. You can now click on the `databases.ipynb` file on the left hand side to view the notebook, and run each cell by pressing the 'play' button at the top of the file.
+
 ## Tips for Success
 
 1. **Read the documentation** - Each function has detailed docstrings explaining what it should do
