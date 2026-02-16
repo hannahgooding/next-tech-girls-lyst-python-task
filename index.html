@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Fashion Companion</title>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <h1>Fashion Companion</h1>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label for="colorFilter">Color:</label>
+                <select id="colorFilter">
+                    <option value="">All Colors</option>
+                    <option value="black">Black</option>
+                    <option value="white">White</option>
+                    <option value="blue">Blue</option>
+                    <option value="red">Red</option>
+                    <option value="green">Green</option>
+                    <option value="yellow">Yellow</option>
+                    <option value="orange">Orange</option>
+                    <option value="pink">Pink</option>
+                    <option value="purple">Purple</option>
+                    <option value="brown">Brown</option>
+                    <option value="gray">Gray</option>
+                    <option value="beige">Beige</option>
+                    <option value="natural">Natural</option>
+                    <option value="metallic">Metallic</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="priceFilter">Price Range:</label>
+                <select id="priceFilter">
+                    <option value="">All Prices</option>
+                    <option value="0-50">Under $50</option>
+                    <option value="50-100">$50 - $100</option>
+                    <option value="100-250">$100 - $250</option>
+                    <option value="250-500">$250 - $500</option>
+                    <option value="500-1000">$500 - $1000</option>
+                    <option value="1000-99999">Over $1000</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>
+                    <input type="checkbox" id="onSaleFilter">
+                    On Sale Only
+                </label>
+            </div>
+            
+            <div class="filter-group">
+                <label for="brandFilter">Brand:</label>
+                <select id="brandFilter">
+                    <option value="">All Brands</option>
+                    <option value="gucci">Gucci</option>
+                    <option value="dolce-gabbana">Dolce & Gabbana</option>
+                    <option value="prada">Prada</option>
+                    <option value="burberry">Burberry</option>
+                    <option value="balenciaga">Balenciaga</option>
+                    <option value="saint-laurent">Saint Laurent</option>
+                    <option value="moncler">Moncler</option>
+                    <option value="jimmy-choo">Jimmy Choo</option>
+                    <option value="max-mara">Max Mara</option>
+                    <option value="isabel-marant">Isabel Marant</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="sortFilter">Sort By:</label>
+                <select id="sortFilter">
+                    <option value="">Default</option>
+                    <option value="price_high_to_low">Price: High to Low</option>
+                    <option value="price_low_to_high">Price: Low to High</option>
+                    <option value="popularity">Popularity</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <button id="applyFilters">Apply Filters</button>
+                <button id="clearFilters" class="clear-btn">Clear Filters</button>
+            </div>
+        </div>
+
+        <div class="grid" id="grid"></div>
+
+        <div class="pagination">
+            <button id="prevBtn" disabled>Previous</button>
+            <span id="pageInfo">Page 1</span>
+            <button id="nextBtn">Next</button>
+        </div>
+
+        <script>
+            let allItems = [];
+            let currentPage = 1;
+            let paginationInfo = {};
+
+            // Clear any persisted filters on page load
+            fetch('/api/clear-filters', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(() => {
+                // Load initial page of products from Python backend
+                loadPage(currentPage);
+            }).catch(error => {
+                console.error('Error clearing filters on load:', error);
+                // Load page anyway even if clearing filters fails
+                loadPage(currentPage);
+            });
+
+            function loadPage(pageNumber) {
+                // Fetch paginated data from the Python server
+                fetch(`/api/products?page=${pageNumber}&items_per_page=50`)
+                    .then(response => response.json())
+                    .then(data => {
+                        allItems = data.products;
+                        paginationInfo = data.pagination;
+                        currentPage = pageNumber;
+                        renderItems();
+                        updatePaginationControls();
+                    })
+                    .catch(error => {
+                        console.error('Error loading page:', error);
+                        // Fallback: load all products from data.jsonl without pagination
+                        fetch('data.jsonl')
+                            .then(response => response.text())
+                            .then(text => {
+                                allItems = text.trim().split('\n').map(line => JSON.parse(line));
+                                renderItems();
+                            })
+                            .catch(err => console.error('Error loading fallback data:', err));
+                    });
+            }
+
+            function renderItems() {
+                const grid = document.getElementById("grid");
+                grid.innerHTML = '';
+
+                allItems.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    
+                    const hasDiscount = item.on_sale && item.discount_price < item.regular_price;
+                    const priceDisplay = hasDiscount 
+                        ? `<span class="old-price">$${item.regular_price.toFixed(2)}</span> <span class="sale-price">$${item.discount_price.toFixed(2)}</span>`
+                        : `<span class="price">$${item.regular_price.toFixed(2)}</span>`;
+
+                    card.innerHTML = `
+                        <img src="${item.image_url}" alt="${item.short_description}">
+                        <div class="product-info">
+                            <h3 class="designer">${formatDesigner(item.designer)}</h3>
+                            <div class="price-section">
+                                ${priceDisplay}
+                                ${hasDiscount ? '<span class="sale-badge">SALE</span>' : ''}
+                            </div>
+                            <div class="details">
+                                ${item.color ? `<span class="color-pill" data-color="${item.color}">${formatColor(item.color)}</span>` : ''}
+                            </div>
+                            <div class="meta">
+                                <span class="retailer">${formatDesigner(item.retailer)}</span>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+                // Apply color backgrounds
+                document.querySelectorAll('.color-pill').forEach(pill => {
+                    const colorName = pill.getAttribute('data-color');
+                    const bgColor = getColorHex(colorName);
+                    pill.style.backgroundColor = bgColor;
+                    pill.style.color = getContrastColor(bgColor);
+                    
+                    // Add grey border for white color
+                    if (colorName.toLowerCase() === 'white') {
+                        pill.style.border = '1px solid #ccc';
+                    }
+                });
+            }
+
+            function updatePaginationControls() {
+                const prevBtn = document.getElementById('prevBtn');
+                const nextBtn = document.getElementById('nextBtn');
+                const pageInfo = document.getElementById('pageInfo');
+
+                if (paginationInfo.has_previous !== undefined) {
+                    prevBtn.disabled = !paginationInfo.has_previous;
+                    nextBtn.disabled = !paginationInfo.has_next;
+                    pageInfo.textContent = `Page ${paginationInfo.current_page} of ${paginationInfo.total_pages}`;
+                }
+            }
+
+            document.getElementById('prevBtn').addEventListener('click', () => {
+                if (paginationInfo.has_previous) {
+                    loadPage(currentPage - 1);
+                    window.scrollTo(0, 0);
+                }
+            });
+
+            document.getElementById('nextBtn').addEventListener('click', () => {
+                if (paginationInfo.has_next) {
+                    loadPage(currentPage + 1);
+                    window.scrollTo(0, 0);
+                }
+            });
+
+            function formatDesigner(str) {
+                if (!str) return '';
+                return str.split('-').map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                ).join(' ');
+            }
+
+            function formatCategory(str) {
+                if (!str) return '';
+                return str.charAt(0).toUpperCase() + str.slice(1);
+            }
+
+            function formatColor(str) {
+                if (!str) return '';
+                return str.charAt(0).toUpperCase() + str.slice(1);
+            }
+
+            function getColorHex(colorName) {
+                const colorMap = {
+                    'black': '#000000',
+                    'white': '#FFFFFF',
+                    'blue': '#4A90E2',
+                    'red': '#E74C3C',
+                    'green': '#2ECC71',
+                    'yellow': '#F1C40F',
+                    'orange': '#E67E22',
+                    'pink': '#FF69B4',
+                    'purple': '#9B59B6',
+                    'brown': '#8B4513',
+                    'gray': '#95A5A6',
+                    'grey': '#95A5A6',
+                    'beige': '#F5F5DC',
+                    'natural': '#E8D7C1',
+                    'navy': '#1E3A8A',
+                    'metallic': '#C0C0C0',
+                    'gold': '#FFD700',
+                    'silver': '#C0C0C0'
+                };
+                return colorMap[colorName.toLowerCase()] || '#E0E0E0';
+            }
+
+            function getContrastColor(hexColor) {
+                const r = parseInt(hexColor.substr(1, 2), 16);
+                const g = parseInt(hexColor.substr(3, 2), 16);
+                const b = parseInt(hexColor.substr(5, 2), 16);
+                const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+                return brightness > 128 ? '#000000' : '#FFFFFF';
+            }
+
+            // Filter logic - sends filter parameters to Python backend
+            document.getElementById('applyFilters').addEventListener('click', async () => {
+                const colorFilter = document.getElementById('colorFilter').value;
+                const priceFilter = document.getElementById('priceFilter').value;
+                const onSaleFilter = document.getElementById('onSaleFilter').checked;
+                const brandFilter = document.getElementById('brandFilter').value;
+                const sortFilter = document.getElementById('sortFilter').value;
+
+                // Prepare filter object
+                const filters = {
+                    color: colorFilter,
+                    price_range: priceFilter,
+                    on_sale: onSaleFilter ? true : null,
+                    brand: brandFilter,
+                    sort_by: sortFilter
+                };
+
+                try {
+                    // Send filters to server
+                    const response = await fetch('/api/set-filters', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(filters)
+                    });
+
+                    if (response.ok) {
+                        // Reload data with filters applied (reset to page 1)
+                        currentPage = 1;
+                        loadPage(currentPage);
+                    }
+                } catch (error) {
+                    console.error('Error applying filters:', error);
+                }
+            });
+
+            // Clear filters - reset to show all products
+            document.getElementById('clearFilters').addEventListener('click', async () => {
+                try {
+                    // Clear filters on server
+                    await fetch('/api/clear-filters', {
+                        method: 'POST'
+                    });
+
+                    // Reset UI controls
+                    document.getElementById('colorFilter').value = '';
+                    document.getElementById('priceFilter').value = '';
+                    document.getElementById('onSaleFilter').checked = false;
+                    document.getElementById('brandFilter').value = '';
+                    document.getElementById('sortFilter').value = '';
+
+                    // Reload all data (reset to page 1)
+                    currentPage = 1;
+                    loadPage(currentPage);
+                } catch (error) {
+                    console.error('Error clearing filters:', error);
+                }
+            });
+        </script>
+    </body>
+</html>
