@@ -129,6 +129,7 @@ def filter_by_brand(products, brand):
 
 
 def sort_by_price_high_to_low(products):
+
     """
     Sort products by price from highest to lowest.
 
@@ -147,6 +148,13 @@ def sort_by_price_high_to_low(products):
 
 
 def sort_by_price_low_to_high(products):
+    for x in products:
+        if x["on_sale"]:
+            x["price"] = x["discount_price"]
+        else:
+            x["price"] = x["regular_price"]
+    priceSorted = sorted(products, key=lambda x: x["price"], reverse=False)
+    return priceSorted
     """
     Sort products by price from lowest to highest.
 
@@ -165,6 +173,8 @@ def sort_by_price_low_to_high(products):
 
 
 def sort_by_popularity(products):
+    popularSorted = sorted(products, key=lambda x: x["item_score"], reverse=True)
+    return popularSorted
     """
     Sort products by popularity score from highest to lowest.
 
