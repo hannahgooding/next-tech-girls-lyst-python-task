@@ -80,7 +80,7 @@ def filter_by_sale_status(products, on_sale=True):
     products = load_products()
     saleFiltered = []
     for product in products:
-        if product ["on_sale"] == on_sale:
+        if product ["on_sale"] == True:
             saleFiltered.append(product)
     return saleFiltered
     """
