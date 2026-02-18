@@ -54,7 +54,10 @@ def filter_by_price_range(products, min_price, max_price):
     priceFiltered = []
     for product in products:
         if product ["regular_price"] >= min_price and product ["regular_price"] <= max_price:
-            priceFiltered.append(product)
+            if product ["on_sale"] == True:
+                if product ["discount_price"] >= min_price and product ["discount_price"] <= max_price:
+                    priceFiltered.append(product)
+
         
     return priceFiltered
     """
