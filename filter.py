@@ -26,7 +26,6 @@ def load_products(filename="data.jsonl"):
 
 
 def filter_by_color(products, color):
-    products = load_products()
     colourFiltered = []
     for product in products:
         if product ["color"] == color:
@@ -50,14 +49,14 @@ def filter_by_color(products, color):
 
 
 def filter_by_price_range(products, min_price, max_price):
-    products = load_products()
     priceFiltered = []
     for product in products:
         if product ["regular_price"] >= min_price and product ["regular_price"] <= max_price:
             if product ["on_sale"] == True:
                 if product ["discount_price"] >= min_price and product ["discount_price"] <= max_price:
                     priceFiltered.append(product)
-
+        else:
+            priceFiltered.append(product)
         
     return priceFiltered
     """
@@ -80,7 +79,6 @@ def filter_by_price_range(products, min_price, max_price):
 
 
 def filter_by_sale_status(products, on_sale=True):
-    products = load_products()
     saleFiltered = []
     for product in products:
         if product ["on_sale"] == True:
@@ -105,7 +103,6 @@ def filter_by_sale_status(products, on_sale=True):
 
 
 def filter_by_brand(products, brand):
-    products = load_products()
     brandFiltered = []
     for product in products:
         if product ["designer"] == brand:
@@ -223,15 +220,15 @@ def apply_filters(products, color=None, price_range=None, on_sale=None, brand=No
     # Apply each filter if the parameter is provided
     # Example structure:
     if color is not None:
-        filtered_products = filter_by_color(filtered_products, color)
+        filtered_products_C = filter_by_color(filtered_products, color)
     if price_range is not None:
-        filtered_products = filter_by_price_range(filtered_products, price_range[0], price_range[1])
+        filtered_products_CP = filter_by_price_range(filtered_products_C, price_range[0], price_range[1])
     if on_sale is not None:
-        filtered_products = filter_by_sale_status(filtered_products, on_sale)
+        filtered_products_CP = filter_by_sale_status(filtered_products_CP, on_sale)
     if brand is not None:
-        filtered_products = filter_by_brand(filtered_products, brand)
+        filtered_products_CPOB = filter_by_brand(filtered_products, brand)
 
-    return filtered_products
+    return filtered_products_CPOB
 
 
 def save_filtered_results(products, output_filename="filtered_data.jsonl"):
