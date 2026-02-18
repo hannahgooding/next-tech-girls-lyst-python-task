@@ -129,7 +129,7 @@ def filter_by_brand(products, brand):
 
 
 def sort_by_price_high_to_low(products):
-        for x in products:
+    for x in products:
         if x["on_sale"]:
             x["price"] = x["discount_price"]
         else:
