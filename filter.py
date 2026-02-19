@@ -55,8 +55,8 @@ def filter_by_price_range(products, min_price, max_price):
             if product ["on_sale"] == True:
                 if product ["discount_price"] >= min_price and product ["discount_price"] <= max_price:
                     priceFiltered.append(product)
-        else:
-            priceFiltered.append(product)
+            else:
+                priceFiltered.append(product)
         
     return priceFiltered
     """
@@ -81,24 +81,15 @@ def filter_by_price_range(products, min_price, max_price):
 def filter_by_sale_status(products, on_sale=True):
     saleFiltered = []
     for product in products:
-        if product ["on_sale"] == True:
-            saleFiltered.append(product)
+        if on_sale:
+            if product ["on_sale"] == True:
+                saleFiltered.append(product)
+        else:
+            if product ["on_sale"] == False:
+                saleFiltered.append(product)
+
     return saleFiltered
-    """
-    Filter products by their sale status.
 
-    Args:
-        products (list): List of product dictionaries
-        on_sale (bool): If True, return only products on sale.
-                       If False, return only products not on sale.
-
-    Returns:
-        list: Filtered list of products matching the sale status
-
-    TODO: Implement this function to return only products that match the sale status.
-    Hint: Each product has an 'on_sale' field (True/False).
-    """
-    # YOUR CODE HERE
     pass
 
 
