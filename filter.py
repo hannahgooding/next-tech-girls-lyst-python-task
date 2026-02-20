@@ -26,6 +26,11 @@ def load_products(filename="data.jsonl"):
 
 
 def filter_by_color(products, color):
+    colourFiltered = []
+    for product in products:
+        if product ["color"] == color:
+            colourFiltered.append(product)
+    return colourFiltered
     """
     Filter products by a specific color.
 
@@ -44,6 +49,16 @@ def filter_by_color(products, color):
 
 
 def filter_by_price_range(products, min_price, max_price):
+    priceFiltered = []
+    for product in products:
+        if product ["regular_price"] >= min_price and product ["regular_price"] <= max_price:
+            if product ["on_sale"] == True:
+                if product ["discount_price"] >= min_price and product ["discount_price"] <= max_price:
+                    priceFiltered.append(product)
+            else:
+                priceFiltered.append(product)
+        
+    return priceFiltered
     """
     Filter products within a specific price range.
 
@@ -64,25 +79,26 @@ def filter_by_price_range(products, min_price, max_price):
 
 
 def filter_by_sale_status(products, on_sale=True):
-    """
-    Filter products by their sale status.
+    saleFiltered = []
+    for product in products:
+        if on_sale:
+            if product ["on_sale"] == True:
+                saleFiltered.append(product)
+        else:
+            if product ["on_sale"] == False:
+                saleFiltered.append(product)
 
-    Args:
-        products (list): List of product dictionaries
-        on_sale (bool): If True, return only products on sale.
-                       If False, return only products not on sale.
+    return saleFiltered
 
-    Returns:
-        list: Filtered list of products matching the sale status
-
-    TODO: Implement this function to return only products that match the sale status.
-    Hint: Each product has an 'on_sale' field (True/False).
-    """
-    # YOUR CODE HERE
     pass
 
 
 def filter_by_brand(products, brand):
+    brandFiltered = []
+    for product in products:
+        if product ["designer"] == brand:
+            brandFiltered.append(product)
+    return brandFiltered
     """
     Filter products by a specific brand (designer).
 
@@ -101,6 +117,13 @@ def filter_by_brand(products, brand):
 
 
 def sort_by_price_high_to_low(products):
+    for x in products:
+        if x["on_sale"]:
+            x["price"] = x["discount_price"]
+        else:
+            x["price"] = x["regular_price"]
+    priceHLSorted = sorted(products, key=lambda x: x["price"], reverse=True)
+    return priceHLSorted
     """
     Sort products by price from highest to lowest.
 
@@ -119,6 +142,13 @@ def sort_by_price_high_to_low(products):
 
 
 def sort_by_price_low_to_high(products):
+    for x in products:
+        if x["on_sale"]:
+            x["price"] = x["discount_price"]
+        else:
+            x["price"] = x["regular_price"]
+    priceLHSorted = sorted(products, key=lambda x: x["price"], reverse=False)
+    return priceLHSorted
     """
     Sort products by price from lowest to highest.
 
@@ -137,6 +167,8 @@ def sort_by_price_low_to_high(products):
 
 
 def sort_by_popularity(products):
+    popularSorted = sorted(products, key=lambda x: x["item_score"], reverse=True)
+    return popularSorted
     """
     Sort products by popularity score from highest to lowest.
 
@@ -178,13 +210,16 @@ def apply_filters(products, color=None, price_range=None, on_sale=None, brand=No
     # YOUR CODE HERE
     # Apply each filter if the parameter is provided
     # Example structure:
-    # if color is not None:
-    #     filtered_products = filter_by_color(filtered_products, color)
-    # if price_range is not None:
-    #     filtered_products = filter_by_price_range(filtered_products, price_range[0], price_range[1])
-    # ... continue for other filters
+    if color is not None:
+        filtered_products_C = filter_by_color(filtered_products, color)
+    if price_range is not None:
+        filtered_products_CP = filter_by_price_range(filtered_products_C, price_range[0], price_range[1])
+    if on_sale is not None:
+        filtered_products_CP = filter_by_sale_status(filtered_products_CP, on_sale)
+    if brand is not None:
+        filtered_products_CPOB = filter_by_brand(filtered_products, brand)
 
-    return filtered_products
+    return filtered_products_CPOB
 
 
 def save_filtered_results(products, output_filename="filtered_data.jsonl"):
@@ -210,20 +245,20 @@ if __name__ == "__main__":
     # Example: Test filtering by color
     # Uncomment the lines below once you've implemented the functions
 
-    # red_products = filter_by_color(all_products, "red")
-    # print(f"Found {len(red_products)} red products")
+    red_products = filter_by_color(all_products, "red")
+    print(f"Found {len(red_products)} red products")
 
     # Example: Test filtering by price range
-    # affordable_products = filter_by_price_range(all_products, 0, 100)
-    # print(f"Found {len(affordable_products)} products under $100")
+    affordable_products = filter_by_price_range(all_products, 0, 100)
+    print(f"Found {len(affordable_products)} products under $100")
 
     # Example: Test filtering by sale status
-    # sale_products = filter_by_sale_status(all_products, on_sale=True)
-    # print(f"Found {len(sale_products)} products on sale")
+    sale_products = filter_by_sale_status(all_products, on_sale=True)
+    print(f"Found {len(sale_products)} products on sale")
 
-    # Example: Test filtering by brand
-    # gucci_products = filter_by_brand(all_products, "gucci")
-    # print(f"Found {len(gucci_products)} Gucci products")
+    #Example: Test filtering by brand
+    gucci_products = filter_by_brand(all_products, "gucci")
+    print(f"Found {len(gucci_products)} Gucci products")
 
     # Example: Apply multiple filters
     # filtered = apply_filters(
@@ -236,4 +271,4 @@ if __name__ == "__main__":
     # print(f"Found {len(filtered)} products matching all criteria")
 
     # Save filtered results
-    # save_filtered_results(filtered)
+    save_filtered_results(filtered)
